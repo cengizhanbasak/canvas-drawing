@@ -1,0 +1,30 @@
+.drawingBoard {
+    display: block;
+    flex: 1;
+}
+
+.canvasContainer {
+    position: relative;
+    display: flex;
+}
+
+.resizer {
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    display: block;
+    right: 0;
+    bottom: 0;
+    transform: translate3d(50%, 50%, 0);
+    background-color: black;
+    z-index: 1;
+    cursor: se-resize;
+}
+
+.controls {
+    margin-top: 1em;
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    justify-content: center;
+}
