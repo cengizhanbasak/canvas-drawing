@@ -12,6 +12,7 @@
 
 .canvasContainer canvas {
     box-shadow: 0 0 2px black;
+    touch-action: none;
 }
 
 .resizer {
@@ -34,10 +35,24 @@
     justify-content: center;
 }
 
+.controls .uploadLabel {
+    position: relative;
+}
+
+.controls .uploadInput {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}
+
 .penSettings {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     gap: 0.5em;
 
 }

@@ -234,14 +234,19 @@ function DrawingBoard() {
                 <button onClick={download}>
                     Download
                 </button>
-                <input type="file" accept="image/*" onChange={handleFileUpload}/>
+                <label className={styles.uploadLabel}>
+                    <input className={styles.uploadInput} type="file" accept="image/*" onChange={handleFileUpload}/>
+                    <button>
+                        Upload
+                    </button>
+                </label>
             </div>
             <div className={styles.penSettings}>
-                <div>R: <input type="number" min="0" max="255" step="5" value={penColor.r} onChange={createColorElementChangeHandler("r")}/></div>
-                <div>G: <input type="number" min="0" max="255" step="5" value={penColor.g} onChange={createColorElementChangeHandler("g")}/></div>
-                <div>B: <input type="number" min="0" max="255" step="5" value={penColor.b} onChange={createColorElementChangeHandler("b")}/></div>
-                <div>Size: <input type="number" min="1" max="64" value={penSize} onChange={handlePenSizeChange}/></div>
-                <div className={styles.colorPreview} style={{ width: penSize, height: penSize, background: `rgb(${penColor.r}, ${penColor.g}, ${penColor.b})` }}/>
+            <div className={styles.colorPreview} style={{ width: penSize, height: penSize, background: `rgb(${penColor.r}, ${penColor.g}, ${penColor.b})` }}/>
+                <div>R: <input type="range" min="0" max="255" step="5" value={penColor.r} onChange={createColorElementChangeHandler("r")}/></div>
+                <div>G: <input type="range" min="0" max="255" step="5" value={penColor.g} onChange={createColorElementChangeHandler("g")}/></div>
+                <div>B: <input type="range" min="0" max="255" step="5" value={penColor.b} onChange={createColorElementChangeHandler("b")}/></div>
+                <div>Size: <input type="range" min="1" max="64" value={penSize} onChange={handlePenSizeChange}/></div>
             </div>
         </div>
     );
