@@ -1,11 +1,16 @@
 .drawingBoard {
-    display: block;
-    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 
 .canvasContainer {
     position: relative;
-    display: flex;
+}
+
+.canvasContainer canvas {
+    box-shadow: 0 0 2px black;
 }
 
 .resizer {

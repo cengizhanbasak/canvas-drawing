@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import styles from "./DrawingBoard.module.css";
 
 interface Point {
@@ -17,17 +17,20 @@ function DrawingBoard() {
     const ctx = canvas?.getContext("2d");
     const [isDrawing, setIsDrawing] = useState(false);
     const [prevXY, setPrevXY] = useState<Point | null>(null);
-
-
-    useEffect(() => {
-        clearBoard();
-        loadBoard();
-    }, [width, height]);
+    const [resizingCanvasData, setResizingCanvasData] = useState("");
 
     useEffect(() => {
         loadBoardDimensions();
-        loadBoard();
+        setTimeout(loadBoard);
     }, [canvas]);
+
+    useEffect(() => {
+        if (resizingCanvasData) {
+            const image = new Image();
+            image.src = resizingCanvasData;
+            ctx?.drawImage(image, 0, 0);
+        }
+    }, [width, height]);
 
     function handleRef(el: HTMLCanvasElement) {
         setCanvas(el);
@@ -54,6 +57,7 @@ function DrawingBoard() {
             setWidth(localWidth);
             setHeight(localHeight);
         }
+        setTimeout(clearBoard);
     }
 
     function loadBoard() {
@@ -69,6 +73,15 @@ function DrawingBoard() {
         }
     }
 
+    function download() {
+        const data = canvas!.toDataURL();
+        const anchor = document.createElement("a");
+        anchor.href = data;
+        anchor.download = "image.png";
+        anchor.click();
+        document.removeChild(anchor);
+    }
+
     function handlePointerDown() {
         setIsDrawing(true);
     }
@@ -79,6 +92,9 @@ function DrawingBoard() {
     }
 
     function handleStartResize() {
+        const data = canvas!.toDataURL();
+        console.log(data);
+        setResizingCanvasData(data);
         document.addEventListener("pointerup", handleEndResize);
         document.addEventListener("pointermove", handleResize);
     }
@@ -90,14 +106,29 @@ function DrawingBoard() {
 
         const { clientX, clientY } = ev;
         const { x: rootX, y: rootY } = canvas.getBoundingClientRect();
-
-        setWidth(clientX - rootX);
-        setHeight(clientY - rootY);
+        
+        const minWidth = 300;
+        const minHeight = 150;
+        const maxWidth = document.body.clientWidth * 0.9;
+        const maxHeight = document.body.clientHeight * 0.6;
+        setWidth(
+            Math.min(
+                maxWidth,
+                Math.max(minWidth, clientX - rootX)
+            )
+        );
+        setHeight(
+            Math.min(
+                maxHeight,
+                Math.max(minHeight, clientY - rootY)
+            )
+        );
     }
 
     function handleEndResize() {
         document.removeEventListener("pointerup", handleEndResize);
         document.removeEventListener("pointermove", handleResize);
+        setResizingCanvasData("");
     }
 
     function handlePointerMove(ev: React.PointerEvent<HTMLCanvasElement>) {
@@ -133,9 +164,33 @@ function DrawingBoard() {
         setPrevXY({ x: canvasX, y: canvasY });
     }
 
+    function handleFileUpload(ev: ChangeEvent<HTMLInputElement>) {
+        const file = ev.target.files![0];
+        const image = new Image();
+        const maxWidth = document.body.clientWidth * 0.9;
+        const maxHeight = document.body.clientHeight * 0.6;
+        image.src = URL.createObjectURL(file);
+        image.onload = () => {
+            const aspectRatio = image.width / image.height;
+            let newWidth = Math.min(image.width, maxWidth);
+            let newHeight = newWidth / aspectRatio;
+            if (newHeight > maxHeight) {
+                newWidth = maxHeight * aspectRatio;
+                newHeight = maxHeight;
+            }
+            image.width = newWidth;
+            image.height = newHeight;
+            setWidth(newWidth);
+            setHeight(newHeight);
+            setTimeout(() => {
+                ctx?.drawImage(image, 0, 0, newWidth, newHeight);
+            });
+        };
+    }
+
     return (
         <div className={styles.drawingBoard}>
-            <div className={styles.canvasContainer}>
+            <div className={styles.canvasContainer} style={{ width, height }}>
                 <canvas
                     ref={handleRef}
                     width={width}
@@ -155,6 +210,10 @@ function DrawingBoard() {
                 <button onClick={saveBoard}>
                     Save
                 </button>
+                <button onClick={download}>
+                    Download
+                </button>
+                <input type="file" accept="image/*" onChange={handleFileUpload}/>
             </div>
         </div>
     );
