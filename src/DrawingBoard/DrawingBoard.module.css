@@ -3,6 +3,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    gap: 1em;
 }
 
 .canvasContainer {
@@ -27,9 +28,21 @@
 }
 
 .controls {
-    margin-top: 1em;
     display: flex;
     gap: 1em;
     align-items: center;
     justify-content: center;
+}
+
+.penSettings {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+
+}
+
+.colorPreview {
+    width: 24px;
+    height: 24px;
 }

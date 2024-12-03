@@ -6,6 +6,12 @@ interface Point {
     y: number;
 }
 
+interface Color {
+    r: number;
+    g: number;
+    b: number;
+}
+
 const CANVAS_DATA_STORAGE_KEY = "canvasData";
 const CANVAS_WIDTH_STORAGE_KEY = "canvasDimensionW";
 const CANVAS_HEIGHT_STORAGE_KEY = "canvasDimensionH";
@@ -18,6 +24,8 @@ function DrawingBoard() {
     const [isDrawing, setIsDrawing] = useState(false);
     const [prevXY, setPrevXY] = useState<Point | null>(null);
     const [resizingCanvasData, setResizingCanvasData] = useState("");
+    const [penColor, setPenColor] = useState<Color>({ r: 0, g: 0, b: 0 });
+    const [penSize, setPenSize] = useState<number>(2);
 
     useEffect(() => {
         loadBoardDimensions();
@@ -93,7 +101,6 @@ function DrawingBoard() {
 
     function handleStartResize() {
         const data = canvas!.toDataURL();
-        console.log(data);
         setResizingCanvasData(data);
         document.addEventListener("pointerup", handleEndResize);
         document.addEventListener("pointermove", handleResize);
@@ -154,8 +161,8 @@ function DrawingBoard() {
             const stepX = (endX - startX) / stepCount;
             const stepY = (endY - startY) / stepCount;
             while (stepCount > 0) {
-                ctx.fillStyle = "rgb(0 0 0)";
-                ctx.fillRect(startX, startY, 2, 2);
+                ctx.fillStyle = `rgb(${penColor.r} ${penColor.g} ${penColor.b})`;
+                ctx.fillRect(startX - (penSize / 2), startY - (penSize / 2), penSize, penSize);
                 startX += stepX;
                 startY += stepY;
                 stepCount--;
@@ -186,6 +193,20 @@ function DrawingBoard() {
                 ctx?.drawImage(image, 0, 0, newWidth, newHeight);
             });
         };
+        ev.target.value = "";
+    }
+
+    function createColorElementChangeHandler(element: keyof Color) {
+        return function (ev: ChangeEvent<HTMLInputElement>) {
+            setPenColor({
+                ...penColor,
+                [element]: ev.target.value
+            });
+        };
+    }
+
+    function handlePenSizeChange(ev: ChangeEvent<HTMLInputElement>) {
+        setPenSize(Number(ev.target.value));
     }
 
     return (
@@ -214,6 +235,13 @@ function DrawingBoard() {
                     Download
                 </button>
                 <input type="file" accept="image/*" onChange={handleFileUpload}/>
+            </div>
+            <div className={styles.penSettings}>
+                <div>R: <input type="number" min="0" max="255" step="5" value={penColor.r} onChange={createColorElementChangeHandler("r")}/></div>
+                <div>G: <input type="number" min="0" max="255" step="5" value={penColor.g} onChange={createColorElementChangeHandler("g")}/></div>
+                <div>B: <input type="number" min="0" max="255" step="5" value={penColor.b} onChange={createColorElementChangeHandler("b")}/></div>
+                <div>Size: <input type="number" min="1" max="64" value={penSize} onChange={handlePenSizeChange}/></div>
+                <div className={styles.colorPreview} style={{ width: penSize, height: penSize, background: `rgb(${penColor.r}, ${penColor.g}, ${penColor.b})` }}/>
             </div>
         </div>
     );
